@@ -1,463 +1,713 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>思考アルゴリズム確認アプリ ｜ 読解編</title>
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --accent: #f59e0b;
-            --success: #10b981;
-            --danger: #ef4444;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 650px;
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            padding: 30px;
-            box-sizing: border-box;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 15px;
-        }
-
-        .tag {
-            display: inline-block;
-            background: #eff6ff;
-            color: var(--primary);
-            font-size: 0.85rem;
-            font-weight: bold;
-            padding: 4px 12px;
-            border-radius: 20px;
-            margin-bottom: 8px;
-        }
-
-        h1 {
-            font-size: 1.25rem;
-            margin: 0;
-            color: var(--text-main);
-        }
-
-        /* プログレスバー */
-        .progress-container {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 25px;
-            gap: 6px;
-        }
-
-        .progress-step {
-            flex: 1;
-            height: 6px;
-            background: #e2e8f0;
-            border-radius: 3px;
-            transition: background 0.3s;
-        }
-
-        .progress-step.active {
-            background: var(--primary);
-        }
-
-        .progress-step.completed {
-            background: var(--success);
-        }
-
-        /* 問題文・英文エリア */
-        .passage-box {
-            background: #f8fafc;
-            border-left: 4px solid var(--primary);
-            padding: 15px;
-            border-radius: 0 8px 8px 0;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .question-box {
-            font-size: 1.05rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #0f172a;
-        }
-
-        .step-title {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 10px;
-        }
-
-        /* 選択肢 */
-        .options-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .option-btn {
-            background: #ffffff;
-            border: 2px solid #cbd5e1;
-            border-radius: 10px;
-            padding: 12px 16px;
-            text-align: left;
-            font-size: 0.95rem;
-            color: var(--text-main);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .option-btn:hover:not(:disabled) {
-            border-color: var(--primary);
-            background: #f8fafc;
-        }
-
-        .option-btn:disabled {
-            cursor: default;
-        }
-
-        .option-btn.correct {
-            border-color: var(--success);
-            background: #ecfdf5;
-            color: #065f46;
-            font-weight: bold;
-        }
-
-        .option-btn.incorrect {
-            border-color: var(--danger);
-            background: #fef2f2;
-            color: #991b1b;
-            opacity: 0.7;
-        }
-
-        /* 解説・フィードバックエリア */
-        .feedback-box {
-            display: none;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .feedback-box.correct-fb {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #1e40af;
-        }
-
-        .feedback-box.incorrect-fb {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #991b1b;
-        }
-
-        .next-btn {
-            display: none;
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 14px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: background 0.2s;
-        }
-
-        .next-btn:hover {
-            background: var(--primary-hover);
-        }
-
-        /* クリア画面 */
-        .clear-screen {
-            text-align: center;
-            display: none;
-        }
-
-        .clear-screen h2 {
-            color: var(--success);
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-
-        .clear-screen p {
-            color: var(--text-muted);
-            margin-bottom: 25px;
-            line-height: 1.6;
-        }
-
-        .restart-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 14px 28px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .restart-btn:hover {
-            background: #d97706;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <header>
-            <span class="tag">高校入試模試・英語 読解編</span>
-            <h1>解法アルゴリズム再現トレーニング</h1>
-        </header>
-
-        <!-- プログレスバー（全4ステップ） -->
-        <div class="progress-container" id="progressBar">
-            <div class="progress-step active" id="p-0"></div>
-            <div class="progress-step" id="p-1"></div>
-            <div class="progress-step" id="p-2"></div>
-            <div class="progress-step" id="p-3"></div>
-        </div>
-
-        <!-- クイズ本体エリア -->
-        <div id="quizContainer">
-            <div class="step-title" id="stepTitle">STEP 1: キーワードの特定</div>
-            
-            <div class="passage-box" id="passageBox">
-                <strong>【本文一部抜粋】</strong><br>
-                Ken wanted to know about animals in danger, so he visited the zoo last Sunday. He found that pandas and koalas are losing their habitats due to environmental changes.
-            </div>
-
-            <div class="question-box" id="questionBox">
-                問：Kenが動物園を訪れた「理由」を問う設問です。最初に本文のどこに注目すべきですか？
-            </div>
-
-            <div class="options-list" id="optionsList">
-                <!-- 動的に生成されます -->
-            </div>
-
-            <div class="feedback-box" id="feedbackBox"></div>
-
-            <button class="next-btn" id="nextBtn" onclick="nextStep()">次のステップへ進む</button>
-        </div>
-
-        <!-- クリア画面 -->
-        <div class="clear-screen" id="clearScreen">
-            <h2>🎉 解法アルゴリズム習得・クリア！</h2>
-            <p>おめでとうございます！<br>「キーワード特定 ➔ 因果関係の確認 ➔ 消去法 ➔ 類題での再現」という一連の処理手順を完璧にクリアしました。本番の模試でもこのステップで得点をもぎ取りましょう！</p>
-            <button class="restart-btn" onclick="resetApp()">もう一度復習する</button>
-        </div>
-    </div>
-
+    <title>英語読解アルゴリズムマスター | 高校入試模試解説</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
-        // Web Audio APIを用いた効果音再生機能
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        function playSound(type) {
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            if (type === 'correct') {
-                // 正解音: 高めの明るい2音 (ピピッ♪)
-                playTone(587.33, 0.08, 0); // D5
-                playTone(880.00, 0.15, 0.08); // A5
-            } else if (type === 'incorrect') {
-                // 不正解音: 低めの短い2音 (ブー)
-                playTone(220.00, 0.12, 0); // A3
-                playTone(185.00, 0.20, 0.08); // F#3
-            } else if (type === 'clear') {
-                // クリア音: ファンファルー♪
-                playTone(523.25, 0.1, 0);   // C5
-                playTone(659.25, 0.1, 0.1); // E5
-                playTone(783.99, 0.1, 0.2); // G5
-                playTone(1046.50, 0.3, 0.3);// C6
-            }
-        }
-
-        function playTone(frequency, duration, delay) {
-            setTimeout(() => {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.value = frequency;
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + duration);
-            }, delay * 1000);
-        }
-
-        const steps = [
-            {
-                title: "STEP 1: キーワードの特定（スキャニング）",
-                passage: "<strong>【本文一部抜粋】</strong><br>Ken wanted to know about animals in danger, so he visited the zoo last Sunday. He found that pandas and koalas are losing their habitats due to environmental changes.",
-                question: "問：Kenが動物園を訪れた「理由」を問う設問です。最初に本文のどこに注目すべきですか？",
-                options: [
-                    { text: "文末の last Sunday（先週の日曜日）周辺", correct: false, feedback: "惜しい！日時を表す副詞句は状況証拠に過ぎず、動植物の保護などの「理由」を直接説明する箇所ではありません。" },
-                    { text: "前半の wanted to know about animals in danger, so he visited... 周辺", correct: true, feedback: "正解！「〜を知りたかったので（so）訪問した」という因果関係を示す接続詞 so の前後が最重要キーワードです。" },
-                    { text: "最後の environmental changes（環境の変化）の部分だけ", correct: false, feedback: "不正解。それは結果としての要因の一部ですが、Ken自身の行動理由が述べられている箇所を先に見るべきです。" }
-                ]
-            },
-            {
-                title: "STEP 2: 本文からの根拠（因果関係）の特定",
-                passage: "<strong>【本文内容の確認】</strong><br>“Ken wanted to know about animals in danger, so he visited the zoo...”",
-                question: "問：本文の表現「wanted to know about animals in danger」は、何を求めて動物園に行ったことを示していますか？",
-                options: [
-                    { text: "絶滅の危機にある動物についての知識や現状", correct: true, feedback: "正解！「animals in danger（危険にさらされている動物＝絶滅危惧種）」について知りたいという目的が根拠になります。" },
-                    { text: "パンダやコアラの可愛い飼育パフォーマンス", correct: false, feedback: "不正解。本文にパンダやコアラの名前は後半に出てきますが、訪れた「目的」はそこにありません。" },
-                    { text: "先週末に開催された特別な動物園のイベント情報", correct: false, feedback: "不正解。イベントに関する記述は本文に存在しません。" }
-                ]
-            },
-            {
-                title: "STEP 3: 誤答選択肢の排除（消去法）",
-                passage: "<strong>【選択肢の精査】</strong><br>問：次のうち、本文の内容と矛盾している（または書かれていない）ため消去すべき選択肢はどれか？",
-                question: "問：不適切な選択肢を1つ選んでください。",
-                options: [
-                    { text: "Kenは絶滅危惧種の動物について調べるために動物園に行った。", correct: false, feedback: "これは本文に合致する「正解の根拠」そのものです。消去してはいけません。" },
-                    { text: "Kenは先週の日曜日に、新しい動物の飼育員として採用された。", correct: true, feedback: "正解！飼育員になったという記述は一切なく、完全に本文の範囲外の「嘘（誇張）」なので消去できます。" },
-                    { text: "環境の変化によって動物たちが生息地を失っている。", correct: false, feedback: "これも後半（due to environmental changes...）にハッキリ書かれている事実です。" }
-                ]
-            },
-            {
-                title: "STEP 4: 【類題・再現確認】自分で解けるかテスト！",
-                passage: "<strong>【類題の英文】</strong><br>Yumi wanted to learn about renewable energy, so she visited the science museum yesterday. She learned that solar power is essential for our future.",
-                question: "類題確認：Yumiが科学館を訪れた「理由」として正しいものはどれか？",
-                options: [
-                    { text: "将来のために太陽光発電が不可欠であると知るため", correct: false, feedback: "惜しい！それは科学館に行ってから「学んだこと（結果）」であり、訪れた「理由（wanted to... so...）」ではありません。もう一度ステップ1を思い出そう！" },
-                    { text: "再生可能エネルギーについて学ぶため", correct: true, feedback: "完璧です！「Yumi wanted to learn about renewable energy, so...」の構造を見抜き、理由を正確に再現できました！" },
-                    { text: "科学館で開催された週末のお祭りを楽しむため", correct: false, feedback: "不正解。お祭りに関する記述は本文にありません。" }
-                ]
-            }
-        ];
-
-        let currentStep = 0;
-
-        function renderStep() {
-            const step = steps[currentStep];
-
-            // プログレスバー更新
-            for (let i = 0; i < steps.length; i++) {
-                const p = document.getElementById(`p-${i}`);
-                p.className = 'progress-step';
-                if (i < currentStep) p.classList.add('completed');
-                if (i === currentStep) p.classList.add('active');
-            }
-
-            // テキスト反映
-            document.getElementById('stepTitle').innerText = step.title;
-            document.getElementById('passageBox').innerHTML = step.passage;
-            document.getElementById('questionBox').innerText = step.question;
-
-            // フィードバックと次へボタンを初期化
-            const fb = document.getElementById('feedbackBox');
-            fb.style.display = 'none';
-            fb.className = 'feedback-box';
-            
-            const nextBtn = document.getElementById('nextBtn');
-            nextBtn.style.display = 'none';
-
-            // 選択肢の生成
-            const list = document.getElementById('optionsList');
-            list.innerHTML = '';
-
-            step.options.forEach((opt, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'option-btn';
-                btn.innerText = opt.text;
-                btn.onclick = () => selectOption(index, opt.correct, opt.feedback);
-                list.appendChild(btn);
-            });
-        }
-
-        function selectOption(index, isCorrect, feedbackText) {
-            const buttons = document.querySelectorAll('.option-btn');
-            const fb = document.getElementById('feedbackBox');
-            const nextBtn = document.getElementById('nextBtn');
-
-            if (isCorrect) {
-                playSound('correct');
-                // 正解の処理
-                buttons.forEach((btn, idx) => {
-                    btn.disabled = true;
-                    if (idx === index) {
-                        btn.classList.add('correct');
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        indigoCustom: {
+                            50: '#eep2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        },
+                        emeraldCustom: {
+                            500: '#10b981',
+                            600: '#059669',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
                     }
-                });
-
-                fb.className = 'feedback-box correct-fb';
-                fb.innerHTML = `<strong>⭕ 正解！</strong><br>${feedbackText}`;
-                fb.style.display = 'block';
-                nextBtn.style.display = 'block';
-            } else {
-                playSound('incorrect');
-                // 不正解の処理（次のステップに行かせず、選んだボタンだけ赤くして再選択を促す）
-                const clickedBtn = buttons[index];
-                clickedBtn.disabled = true;
-                clickedBtn.classList.add('incorrect');
-
-                fb.className = 'feedback-box incorrect-fb';
-                fb.innerHTML = `<strong>❌ 不正解です。</strong><br>${feedbackText}（別の選択肢を選び直してください）`;
-                fb.style.display = 'block';
-            }
-        }
-
-        function nextStep() {
-            currentStep++;
-            if (currentStep < steps.length) {
-                renderStep();
-            } else {
-                playSound('clear');
-                // クリア画面表示
-                document.getElementById('quizContainer').style.display = 'none';
-                document.getElementById('clearScreen').style.display = 'block';
-                // プログレスバーを全て完了に
-                for (let i = 0; i < steps.length; i++) {
-                    document.getElementById(`p-${i}`).className = 'progress-step completed';
                 }
             }
         }
+    </script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .highlight-target {
+            background-color: #fef08a;
+            color: #854d0e;
+            font-weight: 700;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+            box-shadow: 0 0 0 2px #fef08a;
+        }
+        .highlight-cause {
+            background-color: #bbf7d0;
+            color: #166534;
+            font-weight: 700;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+            box-shadow: 0 0 0 2px #bbf7d0;
+        }
+    </style>
+</head>
+<body class="h-full font-sans text-slate-800 flex flex-col justify-between selection:bg-indigoCustom-500 selection:text-white">
 
-        function resetApp() {
-            currentStep = 0;
-            document.getElementById('clearScreen').style.display = 'none';
-            document.getElementById('quizContainer').style.display = 'block';
-            renderStep();
+    <!-- Header Navigation -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigoCustom-600 text-white flex items-center justify-center font-bold text-lg shadow-md shadow-indigoCustom-500/20">
+                    <i class="fa-solid fa-book-open-reader"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 text-base sm:text-lg leading-tight">英語読解アルゴリズム</h1>
+                    <p class="text-xs text-slate-500 font-medium">高校入試模試：長文理由問題の解法OS</p>
+                </div>
+            </div>
+            <div class="bg-indigoCustom-50 border border-indigoCustom-100 px-3 py-1.5 rounded-full text-xs font-semibold text-indigoCustom-700 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-indigoCustom-500 animate-pulse"></span>
+                読解プロトタイプ
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-3xl mx-auto px-4 py-6 sm:py-8 w-full flex-grow">
+
+        <!-- Progress Indicator -->
+        <div id="progress-container" class="mb-6 hidden">
+            <div class="flex justify-between items-center mb-2">
+                <span id="progress-label" class="text-xs font-bold text-indigoCustom-700 tracking-wider uppercase">Step 1 / 3: 【着眼】スキャニング</span>
+                <span id="progress-percent" class="text-xs font-semibold text-slate-500">25%</span>
+            </div>
+            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                <div id="progress-bar" class="bg-gradient-to-r from-indigoCustom-500 to-emeraldCustom-500 h-full rounded-full transition-all duration-500 ease-out" style="width: 25%"></div>
+            </div>
+        </div>
+
+        <!-- Dynamic Content Card -->
+        <div id="app-card" class="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50 p-5 sm:p-8 relative overflow-hidden transition-all duration-300">
+            <!-- App Screens are dynamically rendered here -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        <div class="max-w-4xl mx-auto px-4">
+            模試解説思考プロセストレーニング（長文読解編） &copy; 2026
+        </div>
+    </footer>
+
+    <!-- Audio Synthesizer for SFX -->
+    <script>
+        // Web Audio API for sound effects
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, audioCtx.currentTime); // A3
+                    osc.frequency.setValueAtTime(196, audioCtx.currentTime + 0.1); // G3
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+                }
+            } catch(e) {
+                // Audio context error fallback
+            }
+        }
+    </script>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // State Management
+        const state = {
+            currentScreen: 'intro', // 'intro', 'step1', 'step2', 'step3', 'summary', 'reproduction', 'clear'
+            isAnswered: false,
+            highlightState: 'none' // 'none', 'target', 'cause'
+        };
+
+        // DOM Elements
+        const appCard = document.getElementById('app-card');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress-bar');
+        const progressLabel = document.getElementById('progress-label');
+        const progressPercent = document.getElementById('progress-percent');
+
+        // Target Passage HTML
+        function getBasePassageHTML() {
+            let p = "Ken went to the library yesterday. He wanted to read a book about Japanese history because he has a test next week. When he got there, he found that the library was closed. So, he decided to buy a book at the bookstore instead.";
+            
+            if (state.highlightState === 'target') {
+                p = p.replace('decided to buy a book at the bookstore instead.', '<span class="highlight-target">decided to buy a book at the bookstore instead.</span>');
+            } else if (state.highlightState === 'cause') {
+                p = p.replace('decided to buy a book at the bookstore instead.', '<span class="highlight-target">decided to buy a book at the bookstore instead.</span>');
+                p = p.replace('the library was closed.', '<span class="highlight-cause">the library was closed.</span>');
+            }
+            return p;
         }
 
-        // 初期化実行
-        renderStep();
+        // Update Progress UI
+        function updateProgress(stepText, percent) {
+            progressContainer.classList.remove('hidden');
+            progressLabel.textContent = stepText;
+            progressPercent.textContent = `${percent}%`;
+            progressBar.style.width = `${percent}%`;
+        }
+
+        function hideProgress() {
+            progressContainer.classList.add('hidden');
+        }
+
+        // Screen Render Controller
+        function renderScreen() {
+            appCard.classList.remove('fade-in');
+            void appCard.offsetWidth; // Trigger reflow for animation
+            appCard.classList.add('fade-in');
+
+            switch (state.currentScreen) {
+                case 'intro':
+                    renderIntro();
+                    break;
+                case 'step1':
+                    renderStep1();
+                    break;
+                case 'step2':
+                    renderStep2();
+                    break;
+                case 'step3':
+                    renderStep3();
+                    break;
+                case 'summary':
+                    renderSummary();
+                    break;
+                case 'reproduction':
+                    renderReproduction();
+                    break;
+                case 'clear':
+                    renderClear();
+                    break;
+            }
+        }
+
+        // 1. INTRO SCREEN
+        function renderIntro() {
+            hideProgress();
+            state.highlightState = 'none';
+            appCard.innerHTML = `
+                <div class="space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-50 text-amber-800 text-xs font-semibold border border-amber-200">
+                        <i class="fa-solid fa-lightbulb text-amber-600"></i> 模試解説：長文読解（理由選択問題）
+                    </div>
+
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">
+                        理由を問う問題は、感覚で読むな！<br>
+                        <span class="text-indigoCustom-600">「因果関係の検索ロジック」</span>をマスターしよう
+                    </h2>
+
+                    <!-- Target Question & Passage Display -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">【英文本文】</span>
+                            <p class="text-slate-800 font-serif leading-relaxed text-base sm:text-lg bg-white p-4 rounded-lg border border-slate-200">
+                                ${getBasePassageHTML()}
+                            </p>
+                        </div>
+
+                        <div class="border-t border-slate-200 pt-3">
+                            <span class="text-xs font-bold text-indigoCustom-600 uppercase tracking-wider block mb-1">【設問】</span>
+                            <p class="text-slate-900 font-bold text-base">
+                                Question: Why did Ken go to the bookstore?
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-indigoCustom-50 border border-indigoCustom-100 rounded-xl p-4 text-sm text-slate-600 space-y-1">
+                        <p class="font-bold text-indigoCustom-700 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check"></i> この問題の攻略手順
+                        </p>
+                        <p>読解問題で最も大切なのは<b>「設問のキーワードを本文で探す（着眼）」➔「前後の因果関係（SoやBecauseなど）を判断」➔「正解の根拠を特定（処理）」</b>の3ステップです。</p>
+                    </div>
+
+                    <button id="btn-start" onclick="playSound('click'); nextScreen('step1');" class="w-full py-4 bg-indigoCustom-600 hover:bg-indigoCustom-700 active:scale-[0.99] text-white font-bold text-lg rounded-xl shadow-lg shadow-indigoCustom-500/25 transition-all duration-200 flex items-center justify-center gap-2">
+                        <span>思考ステップ（スキャニング）を始める</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        // 2. STEP 1: 着眼 (スキャニング)
+        function renderStep1() {
+            updateProgress('Step 1 / 3: 【着眼】スキャニング', 25);
+            state.isAnswered = false;
+            state.highlightState = 'none';
+
+            appCard.innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 bg-indigoCustom-100 text-indigoCustom-700 text-xs font-extrabold rounded-md">STEP 1</span>
+                        <h3 class="text-lg font-bold text-slate-800">【着眼】スキャニング（該当箇所の発見）</h3>
+                    </div>
+
+                    <!-- Target Sentence -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm">
+                        <p class="text-xs font-bold text-slate-400 mb-1">本文：</p>
+                        <p id="step-passage" class="font-serif text-slate-800 text-base leading-relaxed">
+                            ${getBasePassageHTML()}
+                        </p>
+                    </div>
+
+                    <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg text-xs text-amber-900 font-medium">
+                        設問：Why did Ken <b>go to the bookstore</b>?
+                    </div>
+
+                    <p class="font-bold text-slate-800 text-base">
+                        Q1. 最初に本文から探すべきキーワードと、その該当箇所は本文のどこにありますか？
+                    </p>
+
+                    <div class="space-y-3" id="options-container">
+                        ${createOptionButton(1, 'A', '1文目の「went to the library」の部分')}
+                        ${createOptionButton(2, 'B', '2文目の「Japanese history / test next week」の部分')}
+                        ${createOptionButton(3, 'C', '最後の文の「decided to buy a book at the bookstore」の部分', true)}
+                    </div>
+
+                    <div id="feedback-area" class="hidden"></div>
+
+                    <button id="btn-next" onclick="playSound('click'); nextScreen('step2');" class="w-full py-3.5 bg-indigoCustom-600 text-white font-bold text-base rounded-xl hidden flex items-center justify-center gap-2 shadow-md">
+                        <span>次へ：STEP 2【判断】因果関係の特定へ</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        // 3. STEP 2: 判断 (因果関係の特定)
+        function renderStep2() {
+            updateProgress('Step 2 / 3: 【判断】因果関係の特定', 50);
+            state.isAnswered = false;
+            state.highlightState = 'target';
+
+            appCard.innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 bg-indigoCustom-100 text-indigoCustom-700 text-xs font-extrabold rounded-md">STEP 2</span>
+                        <h3 class="text-lg font-bold text-slate-800">【判断】結果の「前の文（原因）」に着目する</h3>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm">
+                        <p class="text-xs font-bold text-slate-400 mb-1">本文（黄色が「結果」の文）：</p>
+                        <p class="font-serif text-slate-800 text-base leading-relaxed">
+                            ${getBasePassageHTML()}
+                        </p>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 p-3 rounded-lg text-xs text-blue-900 font-medium">
+                        黄色い文の冒頭にある <b>「So, ...」（だから〜）</b> に着目！「So」の前にある文が理由（原因）です。
+                    </div>
+
+                    <p class="font-bold text-slate-800 text-base">
+                        Q2. Kenが本屋で本を買うことにした「直接の理由」となっている本文の事実はどれですか？
+                    </p>
+
+                    <div class="space-y-3" id="options-container">
+                        ${createOptionButton(1, 'A', '来週日本史のテストがあるから (has a test next week)')}
+                        ${createOptionButton(2, 'B', '図書館が閉まっていたから (the library was closed)', true)}
+                        ${createOptionButton(3, 'C', '昨日図書館に行ったから (went to the library yesterday)')}
+                    </div>
+
+                    <div id="feedback-area" class="hidden"></div>
+
+                    <button id="btn-next" onclick="playSound('click'); nextScreen('step3');" class="w-full py-3.5 bg-indigoCustom-600 text-white font-bold text-base rounded-xl hidden flex items-center justify-center gap-2 shadow-md">
+                        <span>次へ：STEP 3【処理】正解の判定と消去法へ</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        // 4. STEP 3: 処理 (消去法と選択肢照合)
+        function renderStep3() {
+            updateProgress('Step 3 / 3: 【処理】正解の根拠と消去法', 75);
+            state.isAnswered = false;
+            state.highlightState = 'cause';
+
+            appCard.innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 bg-indigoCustom-100 text-indigoCustom-700 text-xs font-extrabold rounded-md">STEP 3</span>
+                        <h3 class="text-lg font-bold text-slate-800">【処理】根拠の照合と誤答の排除</h3>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm">
+                        <p class="text-xs font-bold text-slate-400 mb-1">本文（緑色が「直接の理由」）：</p>
+                        <p class="font-serif text-slate-800 text-base leading-relaxed">
+                            ${getBasePassageHTML()}
+                        </p>
+                    </div>
+
+                    <p class="font-bold text-slate-800 text-base">
+                        Q3. 次のうち、模試の選択肢「Because he wanted to read a book about Japanese history.」（日本史の本が読みたかったから）を選んではいけない理由は？
+                    </p>
+
+                    <div class="space-y-3" id="options-container">
+                        ${createOptionButton(1, 'A', '「図書館に行った理由」であり、「本屋に行った直接の理由」ではないから', true)}
+                        ${createOptionButton(2, 'B', '本文に書いていない嘘の内容だから')}
+                        ${createOptionButton(3, 'C', 'Kenは歴史のテストを受けたくないと思っているから')}
+                    </div>
+
+                    <div id="feedback-area" class="hidden"></div>
+
+                    <button id="btn-next" onclick="playSound('click'); nextScreen('summary');" class="w-full py-3.5 bg-indigoCustom-600 text-white font-bold text-base rounded-xl hidden flex items-center justify-center gap-2 shadow-md">
+                        <span>解法アルゴリズムのまとめへ</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        // Helper: Create Option Button Component
+        function createOptionButton(id, letter, text, isCorrect = false) {
+            return `
+                <button onclick="checkAnswer(${id}, ${isCorrect})" id="opt-${id}" class="opt-btn w-full text-left p-4 rounded-xl border-2 border-slate-200 hover:border-indigoCustom-500 hover:bg-indigoCustom-50/50 transition-all duration-150 font-medium text-slate-700 flex items-start gap-3 group">
+                    <span class="w-6 h-6 rounded-full bg-slate-100 group-hover:bg-indigoCustom-500 group-hover:text-white text-slate-500 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors">
+                        ${letter}
+                    </span>
+                    <span class="text-sm sm:text-base leading-relaxed">${text}</span>
+                </button>
+            `;
+        }
+
+        // Answer Checking Logic
+        function checkAnswer(selectedId, isCorrect) {
+            if (state.isAnswered) return;
+            state.isAnswered = true;
+
+            const selectedBtn = document.getElementById(`opt-${selectedId}`);
+            const feedbackArea = document.getElementById('feedback-area');
+            const nextBtn = document.getElementById('btn-next');
+
+            document.querySelectorAll('.opt-btn').forEach(btn => {
+                btn.classList.add('cursor-not-allowed', 'opacity-60');
+                btn.removeAttribute('onclick');
+            });
+
+            if (isCorrect) {
+                playSound('correct');
+                selectedBtn.classList.remove('border-slate-200', 'hover:border-indigoCustom-500', 'opacity-60');
+                selectedBtn.classList.add('border-emeraldCustom-500', 'bg-emerald-50', 'text-emerald-900', 'ring-2', 'ring-emeraldCustom-500/20');
+                
+                feedbackArea.className = 'p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm space-y-1 fade-in';
+                feedbackArea.innerHTML = `
+                    <div class="font-bold flex items-center gap-2 text-emerald-700 text-base">
+                        <i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i> 正解！完璧な読み取りです。
+                    </div>
+                    <p class="text-xs text-emerald-600">根拠のある読解ステップを踏めています。このロジックが再現性のカギです！</p>
+                `;
+
+                // Update highlight state in step 1
+                if (state.currentScreen === 'step1') {
+                    state.highlightState = 'target';
+                    const passageElem = document.getElementById('step-passage');
+                    if (passageElem) passageElem.innerHTML = getBasePassageHTML();
+                }
+            } else {
+                playSound('wrong');
+                selectedBtn.classList.remove('border-slate-200', 'opacity-60');
+                selectedBtn.classList.add('border-rose-400', 'bg-rose-50', 'text-rose-900');
+
+                feedbackArea.className = 'p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm space-y-1 fade-in';
+                feedbackArea.innerHTML = `
+                    <div class="font-bold flex items-center gap-2 text-rose-700 text-base">
+                        <i class="fa-solid fa-circle-xmark text-rose-500 text-xl"></i> 惜しい！本文の因果関係を見直しましょう。
+                    </div>
+                    <p class="text-xs text-rose-600">問題文が求めている「直接の理由」がどこにあるか再度確認してください。</p>
+                `;
+            }
+
+            feedbackArea.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
+            nextBtn.classList.add('fade-in');
+        }
+
+        // 5. SUMMARY (解法OS)
+        function renderSummary() {
+            updateProgress('読解解法OSの体系化', 90);
+
+            appCard.innerHTML = `
+                <div class="space-y-6">
+                    <div class="text-center space-y-2">
+                        <span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full">長文理由問題 解法OS</span>
+                        <h3 class="text-xl sm:text-2xl font-bold text-slate-900">「Why問」を確実に仕留める解法アルゴリズム</h3>
+                    </div>
+
+                    <!-- Algorithm Blueprint Card -->
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-lg space-y-4 relative overflow-hidden">
+                        <div class="absolute -right-4 -bottom-4 opacity-10 text-8xl text-white">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </div>
+
+                        <div class="border-b border-slate-700 pb-3">
+                            <p class="text-xs font-semibold text-indigoCustom-500 tracking-wider uppercase">理由問題の方程式</p>
+                            <p class="text-base sm:text-lg font-mono font-bold mt-1 text-emerald-300">
+                                設問のキーワード(結果) ➔ 本文スキャニング ➔ 直前の原因(So/Because/When)
+                            </p>
+                        </div>
+
+                        <div class="space-y-3 text-sm text-slate-300">
+                            <div class="flex items-start gap-2.5">
+                                <span class="bg-indigoCustom-500 text-white text-xs font-bold rounded px-2 py-0.5 mt-0.5">1</span>
+                                <div>
+                                    <strong class="text-white">【着眼】設問のスキャニング</strong><br>
+                                    Why did S V...? のVや目的語（例: bookstore）を本文から探す。
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-2.5">
+                                <span class="bg-indigoCustom-500 text-white text-xs font-bold rounded px-2 py-0.5 mt-0.5">2</span>
+                                <div>
+                                    <strong class="text-white">【判断】直接の因果関係の特定</strong><br>
+                                    「So...（だから）」の前の文、あるいは「Because...」の節が直接の「原因」になる。
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-2.5">
+                                <span class="bg-indigoCustom-500 text-white text-xs font-bold rounded px-2 py-0.5 mt-0.5">3</span>
+                                <div>
+                                    <strong class="text-white">【処理】まぎらわしい選択肢（トラップ）の排除</strong><br>
+                                    「本文には書いてあるが、別の行動の理由になっている選択肢」に騙されない！
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-900 text-sm flex items-start gap-3">
+                        <i class="fa-solid fa-circle-exclamation text-amber-600 text-lg mt-0.5"></i>
+                        <div>
+                            <p class="font-bold">ここからが本番！「再現テスト」</p>
+                            <p class="text-xs text-amber-800 mt-0.5">別のストーリー（Emiの物語）で、全く同じアルゴリズムを使って正解を自力で導き出せるかテストします！</p>
+                        </div>
+                    </div>
+
+                    <button onclick="playSound('click'); nextScreen('reproduction');" class="w-full py-4 bg-emeraldCustom-600 hover:bg-emeraldCustom-500 active:scale-[0.99] text-white font-bold text-lg rounded-xl shadow-lg shadow-emerald-600/25 transition-all duration-200 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>類題テストで再現力を確認する</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        // 6. REPRODUCTION TEST (Emi's passage)
+        function renderReproduction() {
+            updateProgress('類題再現テスト', 95);
+
+            appCard.innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                        <span class="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full flex items-center gap-1">
+                            <i class="fa-solid fa-fire text-amber-600"></i> 類題チャレンジ
+                        </span>
+                        <span class="text-xs text-slate-500 font-medium">ヒントなし・自力でアルゴリズム実行！</span>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="text-lg font-bold text-slate-900">【初見問題】学んだ読解OSを使って解こう</h3>
+                        <p class="text-xs text-slate-500">次の英文を読み、設問に対する最も適切な答えを選びなさい。</p>
+                    </div>
+
+                    <!-- Problem Card -->
+                    <div class="bg-slate-900 text-white p-5 rounded-xl space-y-4 shadow-inner">
+                        <div class="space-y-1">
+                            <span class="text-slate-400 text-xs font-mono">[Passage]</span>
+                            <p class="font-serif leading-relaxed text-base text-slate-100">
+                                "Emi visited the park on Sunday to sketch some flowers. However, it started to rain heavily. She ran into a nearby cafe to wait for the rain to stop. While waiting, she drank warm hot chocolate."
+                            </p>
+                        </div>
+                        <div class="border-t border-slate-700 pt-3">
+                            <span class="text-teal-400 text-xs font-mono font-bold">[Question]</span>
+                            <p class="font-bold text-white text-base sm:text-lg">
+                                Question: Why did Emi enter the cafe?
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="space-y-3 pt-1">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">選択肢を選んで判定：</label>
+                        <div class="space-y-2.5" id="repro-options">
+                            <button onclick="checkReproduction('A', false)" class="repro-btn w-full text-left p-3.5 border-2 border-slate-200 rounded-xl font-medium text-slate-700 hover:border-indigoCustom-500 hover:bg-indigoCustom-50 transition-all text-sm flex items-start gap-3">
+                                <span class="font-bold text-slate-400">A)</span>
+                                <span>Because she wanted to drink hot chocolate.</span>
+                            </button>
+                            <button onclick="checkReproduction('B', true)" class="repro-btn w-full text-left p-3.5 border-2 border-slate-200 rounded-xl font-medium text-slate-700 hover:border-indigoCustom-500 hover:bg-indigoCustom-50 transition-all text-sm flex items-start gap-3">
+                                <span class="font-bold text-slate-400">B)</span>
+                                <span>Because it started to rain heavily.</span>
+                            </button>
+                            <button onclick="checkReproduction('C', false)" class="repro-btn w-full text-left p-3.5 border-2 border-slate-200 rounded-xl font-medium text-slate-700 hover:border-indigoCustom-500 hover:bg-indigoCustom-50 transition-all text-sm flex items-start gap-3">
+                                <span class="font-bold text-slate-400">C)</span>
+                                <span>Because she wanted to meet her friends.</span>
+                            </button>
+                            <button onclick="checkReproduction('D', false)" class="repro-btn w-full text-left p-3.5 border-2 border-slate-200 rounded-xl font-medium text-slate-700 hover:border-indigoCustom-500 hover:bg-indigoCustom-50 transition-all text-sm flex items-start gap-3">
+                                <span class="font-bold text-slate-400">D)</span>
+                                <span>Because the park was closed.</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="repro-feedback" class="hidden"></div>
+                </div>
+            `;
+        }
+
+        // Reproduction Check Logic
+        function checkReproduction(optionKey, isCorrect) {
+            const feedback = document.getElementById('repro-feedback');
+            const btns = document.querySelectorAll('.repro-btn');
+
+            btns.forEach(btn => btn.disabled = true);
+
+            if (isCorrect) {
+                playSound('correct');
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+
+                feedback.className = 'p-5 bg-emerald-50 border border-emerald-200 rounded-xl text-center space-y-3 fade-in';
+                feedback.innerHTML = `
+                    <div class="text-emerald-700 font-extrabold text-lg flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-circle-check text-2xl text-emerald-500"></i>
+                        読解アルゴリズム再現成功！(正解: B)
+                    </div>
+                    <div class="text-xs text-emerald-800 text-left bg-white p-3 rounded-lg border border-emerald-100 space-y-1">
+                        <p class="font-bold">【解法プロセスの検証】</p>
+                        <p>1. 設問の「enter the cafe」➔ 本文の「ran into a nearby cafe」にスキャニング着眼！</p>
+                        <p>2. その原因は直前の「it started to rain heavily」➔ だからBが正解！</p>
+                        <p>※ Aの「hot chocolate」はカフェに入った後の結果なのでトラップ（誤答）です。</p>
+                    </div>
+                    <button onclick="playSound('click'); nextScreen('clear');" class="w-full py-3 bg-emeraldCustom-600 hover:bg-emeraldCustom-500 text-white font-bold rounded-lg shadow transition-all text-sm">
+                        ミッションクリア画面へ <i class="fa-solid fa-trophy ml-1"></i>
+                    </button>
+                `;
+            } else {
+                playSound('wrong');
+                feedback.className = 'p-5 bg-rose-50 border border-rose-200 rounded-xl text-center space-y-3 fade-in';
+                feedback.innerHTML = `
+                    <div class="text-rose-700 font-bold text-base flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-circle-xmark text-xl text-rose-500"></i>
+                        残念！トラップ選択肢に引っかかりました。
+                    </div>
+                    <p class="text-xs text-rose-800">
+                        Aのhot chocolateはカフェに「入った後（While waiting）」の出来事です。カフェに入った「直接の原因」をもう一度探してみましょう！
+                    </p>
+                    <button onclick="playSound('click'); renderReproduction();" class="px-4 py-2 bg-rose-600 text-white font-bold rounded-lg text-xs hover:bg-rose-500 transition-all">
+                        もう一度思考プロセスをやり直す
+                    </button>
+                `;
+            }
+            feedback.classList.remove('hidden');
+        }
+
+        // 7. CLEAR SCREEN
+        function renderClear() {
+            updateProgress('全ミッション完了！', 100);
+
+            appCard.innerHTML = `
+                <div class="text-center py-6 space-y-6">
+                    <div class="relative inline-block">
+                        <div class="w-24 h-24 bg-gradient-to-tr from-amber-400 to-yellow-300 rounded-full flex items-center justify-center mx-auto shadow-xl shadow-amber-500/20 text-white text-4xl animate-bounce">
+                            <i class="fa-solid fa-award"></i>
+                        </div>
+                        <span class="absolute -top-2 -right-2 bg-indigoCustom-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full border-2 border-white shadow">
+                            完全マスター
+                        </span>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h2 class="text-2xl font-extrabold text-slate-900">読解アルゴリズム完全修得！</h2>
+                        <p class="text-sm text-slate-600 max-w-md mx-auto">
+                            長文の理由問題（Why問）において、根拠のあるスキャニングと因果関係の判定ができるようになりました。
+                        </p>
+                    </div>
+
+                    <!-- Achievement Card -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-left max-w-md mx-auto space-y-2.5 text-xs">
+                        <div class="font-bold text-slate-700 border-b border-slate-200 pb-2 flex justify-between items-center">
+                            <span>修得済み解法スキル</span>
+                            <span class="text-emerald-600 font-bold"><i class="fa-solid fa-check"></i> ALL CLEAR</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600">
+                            <span>① 【着眼】設問キーワードの発見（スキャニング）</span>
+                            <span class="font-bold text-emerald-600">習得済み</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600">
+                            <span>② 【判断】So / Because 前後の因果関係判定</span>
+                            <span class="font-bold text-emerald-600">習得済み</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600">
+                            <span>③ 【処理】時系列トラップ選択肢の消去</span>
+                            <span class="font-bold text-emerald-600">習得済み</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600 font-bold text-indigoCustom-700 pt-1.5 border-t border-slate-200">
+                            <span>④ 初見問題（Emiの物語）での自力再現</span>
+                            <span class="text-emerald-600">100% 成功</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 space-y-3">
+                        <button onclick="playSound('click'); nextScreen('intro');" class="w-full py-3.5 bg-indigoCustom-600 hover:bg-indigoCustom-700 text-white font-bold text-base rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-rotate-right"></i>
+                            <span>最初から復習する</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Screen Navigation Handler
+        function nextScreen(screenName) {
+            state.currentScreen = screenName;
+            renderScreen();
+        }
+
+        // Initialize App on Load
+        window.onload = function() {
+            renderScreen();
+        };
     </script>
 </body>
 </html>
