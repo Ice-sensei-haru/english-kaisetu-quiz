@@ -280,6 +280,45 @@
     </div>
 
     <script>
+        // Web Audio APIを用いた効果音再生機能
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            if (type === 'correct') {
+                // 正解音: 高めの明るい2音 (ピピッ♪)
+                playTone(587.33, 0.08, 0); // D5
+                playTone(880.00, 0.15, 0.08); // A5
+            } else if (type === 'incorrect') {
+                // 不正解音: 低めの短い2音 (ブー)
+                playTone(220.00, 0.12, 0); // A3
+                playTone(185.00, 0.20, 0.08); // F#3
+            } else if (type === 'clear') {
+                // クリア音: ファンファルー♪
+                playTone(523.25, 0.1, 0);   // C5
+                playTone(659.25, 0.1, 0.1); // E5
+                playTone(783.99, 0.1, 0.2); // G5
+                playTone(1046.50, 0.3, 0.3);// C6
+            }
+        }
+
+        function playTone(frequency, duration, delay) {
+            setTimeout(() => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = frequency;
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            }, delay * 1000);
+        }
+
         const steps = [
             {
                 title: "STEP 1: キーワードの特定（スキャニング）",
@@ -368,6 +407,7 @@
             const nextBtn = document.getElementById('nextBtn');
 
             if (isCorrect) {
+                playSound('correct');
                 // 正解の処理
                 buttons.forEach((btn, idx) => {
                     btn.disabled = true;
@@ -381,6 +421,7 @@
                 fb.style.display = 'block';
                 nextBtn.style.display = 'block';
             } else {
+                playSound('incorrect');
                 // 不正解の処理（次のステップに行かせず、選んだボタンだけ赤くして再選択を促す）
                 const clickedBtn = buttons[index];
                 clickedBtn.disabled = true;
@@ -397,6 +438,7 @@
             if (currentStep < steps.length) {
                 renderStep();
             } else {
+                playSound('clear');
                 // クリア画面表示
                 document.getElementById('quizContainer').style.display = 'none';
                 document.getElementById('clearScreen').style.display = 'block';
