@@ -3401,7 +3401,7 @@ ${catData.title} （問 ${state.currentIndex + 1} / ${totalItems}）
 <div class="bg-indigo-600 h-full rounded-full transition-all duration-300" style="width: ${progressPct}%"></div>
 </div>
 <div class="space-y-6">
-<div class="bg-indigo-50 border border-indigo-100 p-5 rounded-2xl shadow-sm">
+<div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm">
 <span class="text-xs font-extrabold text-indigo-600 uppercase tracking-wider block mb-1">【問題】</span>
 <h3 class="font-bold text-slate-900 text-base sm:text-lg leading-relaxed">${item.question}</h3>
 </div>
@@ -3500,7 +3500,7 @@ ${subQ.opts.map((opt, idx) => `
 `).join('')}
 </div>
 <div id="feedback-box" class="hidden"></div>
-<button id="next-subq-btn" onclick="app.nextSubQ()" class="hidden w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow transition-all flex items-center justify-center gap-2">
+<button id="next-subq-btn" onclick="app.nextSubQ()" class="hidden w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow transition-all flex items-center justify-center gap-2">
 <span>次の設問へ進む</span> <i class="fa-solid fa-arrow-right"></i>
 </button>
 </div>
